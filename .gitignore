@@ -1,0 +1,16 @@
+# Python / Virtual Environments
+venv/
+env/
+ENV/
+__pycache__/
+*.pyc
+
+# Java / Spring Boot Build
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# IDEs & OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store
