@@ -1,0 +1,35 @@
+.pm-pbo-page .table-card {
+  border-radius: 16px;
+}
+
+.pagination-text {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.pagination-modern .page-link {
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  background: var(--surface);
+}
+
+.modal-modern {
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-hover);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.modal-header-modern {
+  background: linear-gradient(120deg, var(--header-blue), var(--header-blue-2));
+  color: #f4f8ff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.input-modern {
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-main);
+}

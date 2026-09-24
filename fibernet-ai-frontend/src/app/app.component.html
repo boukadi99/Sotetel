@@ -1,0 +1,94 @@
+<div class="app-shell">
+  <nav class="app-navbar" *ngIf="authService.isLoggedIn()">
+    <div class="app-navbar-inner">
+      <a class="navbar-brand brand" routerLink="/dashboard">
+        <span class="brand-logo">
+          <i class="bi bi-diagram-3-fill"></i>
+        </span>
+        <span class="brand-text">
+          <strong>FiberNet-AI Pro</strong>
+          <small>Supervision FTTx/GPON</small>
+        </span>
+      </a>
+
+      <div class="navbar-collapse">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
+              <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/olts" routerLinkActive="active">
+              <i class="bi bi-hdd-network me-1"></i> OLTs
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/onts" routerLinkActive="active">
+              <i class="bi bi-router me-1"></i> ONTs
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/pons" routerLinkActive="active">
+              <i class="bi bi-diagram-2 me-1"></i> PONs
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/splitters" routerLinkActive="active">
+              <i class="bi bi-bezier2 me-1"></i> Splitters
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/pm-pbo" routerLinkActive="active">
+              <i class="bi bi-diagram-3 me-1"></i> PM/PBO
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/incidents" routerLinkActive="active">
+              <i class="bi bi-exclamation-diamond me-1"></i> Incidents
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/diagnostic" routerLinkActive="active">
+              <i class="bi bi-cpu me-1"></i> Diagnostic IA
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/assistant-ia" routerLinkActive="active">
+  <i class="bi bi-chat-dots me-1"></i> Assistant IA
+</a>
+          </li>
+          <li class="nav-item" *ngIf="authService.isAdmin()">
+            <a class="nav-link" routerLink="/chat-logs" routerLinkActive="active">
+              <i class="bi bi-card-list me-1"></i> 📋 Historique Chatbot
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="authService.isAdmin()">
+            <a class="nav-link" routerLink="/thresholds" routerLinkActive="active">
+              <i class="bi bi-sliders me-1"></i> ⚙️ Seuils IA
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="authService.isAdmin()">
+            <a class="nav-link" routerLink="/users" routerLinkActive="active">
+              <i class="bi bi-people me-1"></i> 👥 Utilisateurs
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/map" routerLinkActive="active">
+              <i class="bi bi-geo-alt me-1"></i> Carte
+            </a>
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-outline-light btn-sm logout-button" type="button" (click)="logout()">
+              <i class="bi bi-box-arrow-right me-1"></i> Deconnexion
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="app-content" [class.with-sidebar]="authService.isLoggedIn()">
+    <router-outlet></router-outlet>
+  </main>
+</div>

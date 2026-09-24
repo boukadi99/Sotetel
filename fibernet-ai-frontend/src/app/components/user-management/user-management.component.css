@@ -1,0 +1,7 @@
+.modal-backdrop {
+  opacity: 0.45;
+}
+
+.modal-content.app-card {
+  border-radius: 16px;
+}

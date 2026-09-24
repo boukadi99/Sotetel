@@ -1,0 +1,278 @@
+<div class="container-fluid p-3 p-lg-4 diagnostic-page">
+  <div class="section-title mb-4">
+    <span class="icon"><i class="bi bi-cpu"></i></span>
+    <div>
+      <h2 class="mb-0">Diagnostic IA</h2>
+      <p class="section-subtext">Detection d'anomalies et recommandations assistees</p>
+    </div>
+  </div>
+  
+  <div class="row">
+    <!-- Formulaire -->
+    <div class="col-md-4">
+      <div class="card app-card mb-4">
+        <div class="card-header panel-header">
+          <strong><i class="bi bi-search-heart me-2"></i>Rechercher un ONT</strong>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">ID de l'ONT</label>
+            <input type="number" class="form-control input-modern" 
+                   [(ngModel)]="ontId" 
+                   placeholder="Ex: 360"
+                   (keyup.enter)="diagnose()">
+          </div>
+          <button class="btn btn-primary btn-animated w-100" (click)="diagnose()" [disabled]="loading">
+            {{ loading ? 'Diagnostic en cours...' : 'Diagnostiquer' }} <i class="bi bi-arrow-right-short ms-1"></i>
+          </button>
+          
+          <hr>
+          
+          <label class="form-label">Sélection rapide :</label>
+          <div class="d-flex flex-wrap gap-2">
+            <button *ngFor="let id of quickSelectOptions" 
+                    class="btn btn-outline-secondary btn-sm btn-animated"
+                    (click)="selectOnt(id)">
+              ONT #{{ id }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Résultats -->
+    <div class="col-md-8">
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-2">Analyse en cours...</p>
+      </div>
+      
+      <!-- Error -->
+      <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+      </div>
+      
+      <!-- Results -->
+      <div *ngIf="result && !loading && !error">
+        <!-- Header -->
+        <div class="card app-card mb-3">
+          <div class="card-header diag-headline">
+            <strong><i class="bi bi-clipboard2-pulse me-2"></i>Diagnostic ONT #{{ result.resourceId }}</strong>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Serial :</strong> {{ result.serial || '-' }}</p>
+                <p><strong>Statut :</strong> 
+                  <span class="badge" [ngClass]="{
+                    'bg-success': result.status === 'online',
+                    'bg-danger': result.status === 'offline',
+                    'bg-warning': result.status === 'degraded'
+                  }">
+                    {{ result.status || '-' }}
+                  </span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Score de confiance :</strong> 
+                  <span class="badge bg-primary">{{ result.confidenceScore }}%</span>
+                </p>
+                <p><strong>Anomalies détectées :</strong> 
+                  <span class="badge" [ngClass]="{
+                    'bg-danger': result.anomalies?.length > 0,
+                    'bg-success': result.anomalies?.length === 0
+                  }">
+                    {{ result.anomalies?.length || 0 }}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Métriques -->
+        <div class="card app-card mb-3">
+          <div class="card-header panel-header">
+            <strong><i class="bi bi-graph-up-arrow me-2"></i>Metriques optiques</strong>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label>Puissance RX</label>
+                  <div class="input-group">
+                    <span class="input-group-text">📥</span>
+                    <input type="text" class="form-control" 
+                           [value]="(result.metrics?.rxPower?.toFixed(2) ?? '-') + ' dBm'"
+                           readonly>
+                    <span class="input-group-text" [ngClass]="{
+                      'bg-danger': result.metrics?.rxPower < -27,
+                      'bg-warning': result.metrics?.rxPower >= -27 && result.metrics?.rxPower < -25,
+                      'bg-success': result.metrics?.rxPower >= -25
+                    }">
+                      {{ result.metrics?.rxPower < -27 ? 'CRITIQUE' : 
+                         result.metrics?.rxPower < -25 ? 'WARNING' : 'NORMAL' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label>Puissance TX</label>
+                  <div class="input-group">
+                    <span class="input-group-text">📤</span>
+                    <input type="text" class="form-control" 
+                           [value]="(result.metrics?.txPower?.toFixed(2) ?? '-') + ' dBm'"
+                           readonly>
+                    <span class="input-group-text" [ngClass]="{
+                      'bg-danger': result.metrics?.txPower < 0.3,
+                      'bg-warning': result.metrics?.txPower >= 0.3 && result.metrics?.txPower < 0.8,
+                      'bg-success': result.metrics?.txPower >= 0.8
+                    }">
+                      {{ result.metrics?.txPower < 0.3 ? 'CRITIQUE' : 
+                         result.metrics?.txPower < 0.8 ? 'WARNING' : 'NORMAL' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Distance :</strong> {{ result.metrics?.distance?.toFixed(2) || '-' }} km</p>
+              </div>
+              <div class="col-md-6" *ngIf="result.metrics?.lossDeviation">
+                <p><strong>Déviation de perte :</strong> 
+                  <span [ngClass]="{
+                    'text-danger': Math.abs(result.metrics?.lossDeviation) > 3,
+                    'text-warning': Math.abs(result.metrics?.lossDeviation) > 1
+                  }">
+                    {{ result.metrics?.lossDeviation > 0 ? '+' : '' }}{{ result.metrics?.lossDeviation?.toFixed(2) }} dB
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analyse ML -->
+        <div class="card app-card ml-card mb-3">
+          <div class="card-header panel-header">
+            <strong>🤖 Analyse IA (Machine Learning)</strong>
+          </div>
+          <div class="card-body">
+            <div *ngIf="mlError" class="ml-error">
+              <i class="bi bi-exclamation-circle me-2"></i>{{ mlError }}
+            </div>
+            <div *ngIf="mlResult && !mlError" class="ml-analysis">
+              <div class="d-flex justify-content-between align-items-center gap-3">
+                <div>
+                  <div class="ml-score" [ngClass]="getMlClass()">{{ getMlScore() * 100 | number:'1.1-1' }}%</div>
+                  <div class="text-muted small">Score d'anomalie</div>
+                </div>
+                <span class="badge ml-badge" [ngClass]="getMlClass()">{{ getMlLabel() }}</span>
+              </div>
+              <div class="progress ml-progress" role="progressbar" [attr.aria-valuenow]="getMlScore() * 100" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" [ngClass]="getMlClass()" [style.width.%]="getMlScore() * 100"></div>
+              </div>
+              <p class="ml-explanation mb-0">{{ getMlExplanation() }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Anomalies -->
+        <div class="card app-card mb-3">
+          <div class="card-header panel-header">
+            <strong><i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Anomalies detectees</strong>
+          </div>
+          <div class="card-body">
+            <div *ngIf="!result.anomalies || result.anomalies.length === 0" class="text-success">
+              <i class="bi bi-check-circle-fill me-1"></i> Aucune anomalie detectee
+            </div>
+            <div *ngFor="let anomaly of result.anomalies" class="anomaly-item mb-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ anomaly.type }}</strong><br>
+                  {{ anomaly.description }}
+                </div>
+                <span class="badge" [ngClass]="getSeverityClass(anomaly.severity)">
+                  Sévérité: {{ getSeverityText(anomaly.severity) }} ({{ anomaly.severity }}%)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recommandations -->
+        <div class="card app-card mb-3">
+          <div class="card-header panel-header">
+            <strong><i class="bi bi-lightbulb-fill me-2 text-warning"></i>Recommandations</strong>
+          </div>
+          <div class="card-body">
+            <ul class="list-group recommendation-list">
+              <li *ngFor="let rec of result.recommendations" class="list-group-item">
+                <i class="bi bi-tools me-2"></i>{{ rec }}
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Explications -->
+        <div class="card app-card mb-3" *ngIf="result.explanations && Object.keys(result.explanations).length > 0">
+          <div class="card-header panel-header">
+            <strong><i class="bi bi-journal-richtext me-2"></i>Explications</strong>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li *ngFor="let key of Object.keys(result.explanations)">
+                <strong>{{ key }} :</strong> {{ result.explanations[key] }}
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Cas similaires -->
+        <div class="card app-card mb-3" *ngIf="result.similarCases && result.similarCases.length > 0">
+          <div class="card-header panel-header">
+            <strong><i class="bi bi-arrow-repeat me-2"></i>Cas similaires dans l'historique</strong>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm table-modern">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Description</th>
+                    <th>Résolution</th>
+                    <th>Similarité</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let case of result.similarCases">
+                    <td>{{ case.id }}</td>
+                    <td>{{ case.description }}</td>
+                    <td>{{ case.resolution }}</td>
+                    <td>
+                      <div class="progress progress-modern progress-case" style="height: 20px;">
+                        <div class="progress-bar" [style.width]="case.similarity + '%'">
+                          {{ case.similarity }}%
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- No result -->
+      <div *ngIf="!result && !loading && !error" class="text-center text-muted py-5">
+        <p><i class="bi bi-activity me-1"></i>Selectionnez un ONT pour lancer un diagnostic</p>
+      </div>
+    </div>
+  </div>
+</div>

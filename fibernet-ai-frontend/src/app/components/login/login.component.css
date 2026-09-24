@@ -1,0 +1,22 @@
+.auth-page {
+  min-height: calc(100vh - 72px);
+  display: flex;
+  align-items: center;
+  padding: 3rem 1rem;
+}
+
+.auth-card {
+  border-radius: 18px;
+}
+
+.auth-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  background: linear-gradient(140deg, rgba(44, 116, 255, 0.2), rgba(24, 167, 209, 0.2));
+  color: #1c3c66;
+  font-size: 1.6rem;
+}

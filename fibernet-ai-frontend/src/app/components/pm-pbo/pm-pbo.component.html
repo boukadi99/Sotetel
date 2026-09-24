@@ -1,0 +1,176 @@
+<div class="container-fluid p-3 p-lg-4 pm-pbo-page">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div class="section-title mb-0">
+      <span class="icon"><i class="bi bi-diagram-3"></i></span>
+      <div>
+        <h2 class="mb-0">Gestion PM/PBO</h2>
+        <p class="section-subtext">Points de mutualisation et branchement optique</p>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-animated" data-bs-toggle="modal" data-bs-target="#addPmPboModal">
+      <i class="bi bi-plus-circle me-1"></i> Ajouter un point
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!loading && !error">
+    <div class="card app-card table-card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-modern">
+            <thead>
+              <tr>
+                <th (click)="changeSort('id')" style="cursor: pointer;">ID <span *ngIf="sortBy === 'id'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+                <th (click)="changeSort('type')" style="cursor: pointer;">Type <span *ngIf="sortBy === 'type'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+                <th (click)="changeSort('capacity')" style="cursor: pointer;">Capacity <span *ngIf="sortBy === 'capacity'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+                <th (click)="changeSort('location')" style="cursor: pointer;">Location <span *ngIf="sortBy === 'location'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let point of points">
+                <td>{{ point.id }}</td>
+                <td><span class="badge" [ngClass]="getTypeBadgeClass(point.type)">{{ point.type }}</span></td>
+                <td>{{ point.capacity }}</td>
+                <td>{{ point.location }}</td>
+                <td>{{ getDisplayLatitude(point) }}</td>
+                <td>{{ getDisplayLongitude(point) }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary btn-animated me-2" (click)="openEditModal(point)">
+                    <i class="bi bi-pencil-square me-1"></i> Modifier
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger btn-animated" (click)="deletePoint(point.id)">
+                    <i class="bi bi-trash3 me-1"></i> Supprimer
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="points.length === 0">
+                <td colspan="7" class="text-center text-muted">Aucun PM/PBO trouve</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+          <div class="pagination-text">
+            Affichage de {{ totalElements === 0 ? 0 : currentPage * pageSize + 1 }} a
+            {{ (currentPage + 1) * pageSize > totalElements ? totalElements : (currentPage + 1) * pageSize }}
+            sur {{ totalElements }} points
+          </div>
+          <nav>
+            <ul class="pagination pagination-modern mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="changePage(currentPage - 1)">Precedent</button>
+              </li>
+              <li class="page-item disabled">
+                <span class="page-link">Page {{ currentPage + 1 }} / {{ totalPages }}</span>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
+                <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addPmPboModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content modal-modern">
+      <div class="modal-header modal-header-modern">
+        <h5 class="modal-title"><i class="bi bi-plus-square me-2"></i>Ajouter un point PM/PBO</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form #addPmPboForm="ngForm">
+          <div class="mb-3">
+            <label class="form-label">Type</label>
+            <select class="form-select input-modern" [(ngModel)]="newPoint.type" name="type" required>
+              <option *ngFor="let type of types" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Capacite</label>
+            <input class="form-control input-modern" type="number" [(ngModel)]="newPoint.capacity" name="capacity" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input class="form-control input-modern" [(ngModel)]="newPoint.location" (ngModelChange)="onNewLocationChange()" name="location" list="pmPboLocationOptions" placeholder="Loc_21" required>
+            <small class="text-muted">Choisir une localisation existante ou saisir une nouvelle.</small>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label">Latitude</label>
+              <input class="form-control input-modern" type="number" step="0.00001" [(ngModel)]="newPoint.latitude" name="latitude" placeholder="36.8065">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Longitude</label>
+              <input class="form-control input-modern" type="number" step="0.00001" [(ngModel)]="newPoint.longitude" name="longitude" placeholder="10.1815">
+            </div>
+          </div>
+        </form>
+        <datalist id="pmPboLocationOptions">
+          <option *ngFor="let location of locations" [value]="location"></option>
+        </datalist>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn btn-primary" (click)="addPoint()" [disabled]="!addPmPboForm.form.valid">Ajouter</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editPmPboModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content modal-modern">
+      <div class="modal-header modal-header-modern">
+        <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Modifier un point PM/PBO</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form #editPmPboForm="ngForm">
+          <div class="mb-3">
+            <label class="form-label">Type</label>
+            <select class="form-select input-modern" [(ngModel)]="editPoint.type" name="editType" required>
+              <option *ngFor="let type of types" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Capacite</label>
+            <input class="form-control input-modern" type="number" [(ngModel)]="editPoint.capacity" name="editCapacity" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input class="form-control input-modern" [(ngModel)]="editPoint.location" (ngModelChange)="onEditLocationChange()" name="editLocation" list="pmPboLocationOptions" required>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label">Latitude</label>
+              <input class="form-control input-modern" type="number" step="0.00001" [(ngModel)]="editPoint.latitude" name="editLatitude">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Longitude</label>
+              <input class="form-control input-modern" type="number" step="0.00001" [(ngModel)]="editPoint.longitude" name="editLongitude">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn btn-primary" (click)="updatePoint()" [disabled]="!editPmPboForm.form.valid">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>

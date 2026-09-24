@@ -1,0 +1,31 @@
+services:
+
+  rag:
+    build: ./Stagepfesotetel/rag-service
+    container_name: fibernet-rag
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  backend:
+    build: ./Stagepfesotetel
+    container_name: fibernet-backend
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/fibernet_db
+      SPRING_DATASOURCE_USERNAME: fibernet_user
+      SPRING_DATASOURCE_PASSWORD: fibernet123
+      RAG_SERVICE_URL: http://rag:8000
+    depends_on:
+      - rag
+    restart: unless-stopped
+
+  frontend:
+    build: ./fibernet-ai-frontend
+    container_name: fibernet-frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    restart: unless-stopped

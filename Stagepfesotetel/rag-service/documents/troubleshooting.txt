@@ -1,0 +1,23 @@
+﻿Guide de dépannage fibre optique
+
+Diagnostic des niveaux de puissance:
+
+- RX inférieur à -28 dBm: suspicion de coupure de fibre ou connecteur sale
+- RX entre -25 et -28 dBm: signal dégradé, vérifier les connecteurs et épissures
+- RX entre -18 et -25 dBm: signal normal
+- RX supérieur à -15 dBm: signal trop fort, risque de saturation du récepteur
+- TX inférieur à 0.5 dBm: problème d'émetteur ONT, à remplacer
+- TX supérieur à 2.5 dBm: puissance excessive, vérifier la configuration
+
+Diagnostic de perte optique:
+
+- Perte normale sur splitter 1:8: environ 10.5 dB
+- Perte normale sur splitter 1:16: environ 13.8 dB
+- Perte normale sur splitter 1:32: environ 17.1 dB
+- Si la perte mesurée dépasse la perte théorique de plus de 3 dB: suspicion de problème
+
+Procédure de test:
+1. Effectuer un test OTDR sur la fibre
+2. Vérifier la continuité avec un stylo optique
+3. Inspecter visuellement les connecteurs SC/APC avec un microscope
+4. Nettoyer les connecteurs avec un kit de nettoyage adapté

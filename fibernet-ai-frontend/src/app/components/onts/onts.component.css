@@ -1,0 +1,92 @@
+.onts-page .accordion-item {
+	border-radius: 16px;
+	overflow: hidden;
+}
+
+.ont-filters .accordion-button {
+	background: var(--surface-muted);
+	color: var(--text-main);
+	font-weight: 600;
+	box-shadow: none;
+}
+
+.ont-filters .accordion-button:not(.collapsed) {
+	background: linear-gradient(120deg, rgba(13, 35, 64, 0.96), rgba(24, 58, 99, 0.95));
+	color: #f2f7ff;
+}
+
+.ont-filters .accordion-body {
+	background: var(--surface);
+}
+
+.input-modern {
+	border-radius: 10px;
+	border: 1px solid var(--border-color);
+	background: var(--surface);
+	color: var(--text-main);
+}
+
+.input-modern:focus {
+	border-color: rgba(44, 116, 255, 0.55);
+	box-shadow: 0 0 0 0.2rem rgba(44, 116, 255, 0.15);
+}
+
+.table-card {
+	border-radius: 16px;
+}
+
+.health-dot {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	margin-right: 0.42rem;
+	box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7);
+}
+
+.dot-green {
+	background: #22c55e;
+}
+
+.dot-red {
+	background: #ef4444;
+}
+
+.dot-yellow {
+	background: #f59e0b;
+}
+
+.pagination-text {
+	color: var(--text-soft);
+	font-size: 0.9rem;
+}
+
+.pagination-modern .page-link {
+	border: 1px solid var(--border-color);
+	color: var(--text-main);
+	background: var(--surface);
+}
+
+.pagination-modern .page-item:first-child .page-link {
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+}
+
+.pagination-modern .page-item:last-child .page-link {
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+
+.modal-modern {
+	border-radius: 16px;
+	border: 1px solid var(--border-color);
+	box-shadow: var(--shadow-hover);
+	overflow: hidden;
+	background: var(--surface);
+}
+
+.modal-header-modern {
+	background: linear-gradient(120deg, var(--header-blue), var(--header-blue-2));
+	color: #f4f8ff;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}

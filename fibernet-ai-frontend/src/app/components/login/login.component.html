@@ -1,0 +1,65 @@
+<div class="auth-page">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-5">
+        <div class="card app-card auth-card">
+          <div class="card-body p-4">
+            <div class="text-center mb-4">
+              <div class="auth-icon mb-2">
+                <i class="bi bi-shield-lock"></i>
+              </div>
+              <h3 class="mb-1">Connexion</h3>
+              <p class="text-muted mb-0">Accedez a votre espace FiberNet-AI Pro</p>
+            </div>
+
+            <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Nom d'utilisateur</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="username"
+                  [(ngModel)]="username"
+                  #usernameCtrl="ngModel"
+                  required
+                  autocomplete="username">
+                <div *ngIf="usernameCtrl.invalid && (usernameCtrl.dirty || usernameCtrl.touched)" class="text-danger small mt-1">
+                  Nom d'utilisateur requis.
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Mot de passe</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  name="password"
+                  [(ngModel)]="password"
+                  #passwordCtrl="ngModel"
+                  required
+                  minlength="4"
+                  autocomplete="current-password">
+                <div *ngIf="passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)" class="text-danger small mt-1">
+                  Mot de passe requis.
+                </div>
+              </div>
+
+              <div *ngIf="error" class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+              </div>
+
+              <button class="btn btn-primary w-100 btn-animated" type="submit" [disabled]="loginForm.invalid || loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Se connecter
+              </button>
+            </form>
+
+            <div class="text-center mt-3">
+              <a routerLink="/forgot-password">Mot de passe oublie ?</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

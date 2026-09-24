@@ -1,0 +1,7 @@
+=== ML Evaluation Results ===
+
+healthy: mean=0.37, min=0.04, max=0.67, n=303
+degraded: mean=0.61, min=0.39, max=0.87, n=112
+critical: mean=0.76, min=0.54, max=0.95, n=86
+
+Global: min=0.04, max=0.95, mean=0.49

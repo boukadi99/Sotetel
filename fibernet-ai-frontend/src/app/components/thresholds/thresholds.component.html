@@ -1,0 +1,98 @@
+<div class="container-fluid p-3 p-lg-4">
+	<div class="section-title mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+		<div class="d-flex align-items-center">
+			<span class="icon me-2"><i class="bi bi-sliders"></i></span>
+			<div>
+				<h2 class="title mb-0">Gestion des Seuils IA</h2>
+				<p class="section-subtext mb-0">Configuration des seuils par technologie</p>
+			</div>
+		</div>
+		<button class="btn btn-outline-primary" (click)="loadThresholds()" [disabled]="loading">
+			<span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+			<i *ngIf="!loading" class="bi bi-arrow-clockwise me-1"></i>
+			Rafraichir
+		</button>
+	</div>
+
+	<div *ngIf="error" class="alert alert-danger">
+		<i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+	</div>
+
+	<div *ngIf="loading" class="card app-card p-4 text-center">
+		<div class="spinner-border text-primary mx-auto mb-2" role="status" aria-hidden="true"></div>
+		<p class="mb-0">Chargement des seuils IA...</p>
+	</div>
+
+	<ng-container *ngIf="!loading">
+		<div *ngIf="groups.length === 0" class="card app-card p-4 text-center text-muted">
+			Aucun seuil IA disponible.
+		</div>
+
+		<div class="card app-card mb-4" *ngFor="let group of groups; trackBy: trackByGroup">
+			<div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+				<h5 class="mb-0">{{ group.technology }}</h5>
+				<span class="badge bg-secondary">{{ group.items.length }} seuil(s)</span>
+			</div>
+
+			<div class="table-responsive">
+				<table class="table table-hover align-middle mb-0">
+					<thead class="table-light">
+						<tr>
+							<th>Nom</th>
+							<th class="text-nowrap">Valeur</th>
+							<th>Unite</th>
+							<th>Description</th>
+							<th>Niveau</th>
+							<th class="text-end">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let item of group.items; trackBy: trackByRow">
+							<td class="fw-semibold">{{ item.name }}</td>
+							<td style="max-width: 170px;">
+								<input
+									*ngIf="item.editing"
+									type="number"
+									class="form-control form-control-sm"
+									[(ngModel)]="item.draftValue"
+									[disabled]="item.saving">
+								<span *ngIf="!item.editing">{{ item.value }}</span>
+							</td>
+							<td>{{ item.unit || '-' }}</td>
+							<td>{{ item.description || '-' }}</td>
+							<td>
+								<span class="badge" [ngClass]="getLevelBadgeClass(item.level)">{{ item.level | uppercase }}</span>
+							</td>
+							<td class="text-end">
+								<button
+									*ngIf="!item.editing"
+									class="btn btn-sm btn-outline-primary me-2"
+									(click)="startEdit(item)"
+									title="Editer">
+									✏️
+								</button>
+								<button
+									*ngIf="item.editing"
+									class="btn btn-sm btn-success me-2"
+									(click)="save(item)"
+									[disabled]="item.saving"
+									title="Sauvegarder">
+									<span *ngIf="item.saving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+									<span *ngIf="!item.saving">💾</span>
+								</button>
+								<button
+									*ngIf="item.editing"
+									class="btn btn-sm btn-outline-secondary"
+									(click)="cancelEdit(item)"
+									[disabled]="item.saving"
+									title="Annuler">
+									❌
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</ng-container>
+</div>

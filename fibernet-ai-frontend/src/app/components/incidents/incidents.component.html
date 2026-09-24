@@ -1,0 +1,181 @@
+<div class="container-fluid p-3 p-lg-4 incidents-page">
+	<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+		<div class="section-title mb-0">
+			<span class="icon"><i class="bi bi-exclamation-diamond"></i></span>
+			<div>
+				<h2 class="mb-0">Gestion des incidents</h2>
+				<p class="section-subtext">Suivi des alarmes, priorites et resolution</p>
+			</div>
+		</div>
+		<button class="btn btn-primary btn-animated" data-bs-toggle="modal" data-bs-target="#addIncidentModal">
+			<i class="bi bi-plus-circle me-1"></i> Ajouter un incident
+		</button>
+	</div>
+
+	<div *ngIf="loading" class="text-center py-5">
+		<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Chargement...</span></div>
+	</div>
+
+	<div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+	<div *ngIf="!loading && !error">
+		<div class="card app-card table-card">
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-hover table-modern">
+						<thead>
+							<tr>
+								<th (click)="changeSort('id')" style="cursor: pointer;">ID <span *ngIf="sortBy === 'id'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+								<th (click)="changeSort('resource')" style="cursor: pointer;">Resource <span *ngIf="sortBy === 'resource'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+								<th (click)="changeSort('type')" style="cursor: pointer;">Type <span *ngIf="sortBy === 'type'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+								<th (click)="changeSort('value')" style="cursor: pointer;">Value <span *ngIf="sortBy === 'value'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+								<th>Recommendation</th>
+								<th (click)="changeSort('status')" style="cursor: pointer;">Statut <span *ngIf="sortBy === 'status'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span></th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let incident of incidents">
+								<td>{{ incident.id }}</td>
+								<td><span class="badge bg-primary">{{ incident.resource }}</span></td>
+								<td><span class="badge" [ngClass]="getTypeBadgeClass(incident.type)">{{ incident.type }}</span></td>
+								<td>{{ incident.value }}</td>
+								<td><small>{{ incident.recommendation || '-' }}</small></td>
+								<td><span class="badge" [ngClass]="getStatusBadgeClass(incident.status)">{{ incident.status }}</span></td>
+								<td>
+									<button class="btn btn-sm btn-outline-primary btn-animated me-2" (click)="openEditModal(incident)">
+										<i class="bi bi-pencil-square me-1"></i> Modifier
+									</button>
+									<button class="btn btn-sm btn-outline-success btn-animated me-2" *ngIf="incident.status !== 'RESOLVED'" (click)="updateStatus(incident, 'RESOLVED')">
+										<i class="bi bi-check2-circle me-1"></i> Resoudre
+									</button>
+									<button class="btn btn-sm btn-outline-danger btn-animated" (click)="deleteIncident(incident.id)">
+										<i class="bi bi-trash3 me-1"></i> Supprimer
+									</button>
+								</td>
+							</tr>
+							<tr *ngIf="incidents.length === 0">
+								<td colspan="8" class="text-center text-muted">Aucun incident trouve</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+					<div class="pagination-text">
+						Affichage de {{ totalElements === 0 ? 0 : currentPage * pageSize + 1 }} a
+						{{ (currentPage + 1) * pageSize > totalElements ? totalElements : (currentPage + 1) * pageSize }}
+						sur {{ totalElements }} incidents
+					</div>
+					<nav>
+						<ul class="pagination pagination-modern mb-0">
+							<li class="page-item" [class.disabled]="currentPage === 0">
+								<button class="page-link" (click)="changePage(currentPage - 1)">Precedent</button>
+							</li>
+							<li class="page-item disabled">
+								<span class="page-link">Page {{ currentPage + 1 }} / {{ totalPages }}</span>
+							</li>
+							<li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
+								<button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="addIncidentModal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content modal-modern">
+			<div class="modal-header modal-header-modern">
+				<h5 class="modal-title"><i class="bi bi-plus-square me-2"></i>Ajouter un incident</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<form #addIncidentForm="ngForm">
+					<div class="row g-2">
+						<div class="col-md-6">
+							<label class="form-label">Resource</label>
+							<select class="form-select input-modern" [(ngModel)]="newIncident.resource" name="resource" required>
+								<option *ngFor="let resource of resourceOptions" [value]="resource">{{ resource }}</option>
+							</select>
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Type</label>
+							<select class="form-select input-modern" [(ngModel)]="newIncident.type" name="type" required>
+								<option *ngFor="let type of typeOptions" [value]="type">{{ type }}</option>
+							</select>
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Value</label>
+							<input class="form-control input-modern" type="number" step="0.01" [(ngModel)]="newIncident.value" name="value">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Statut</label>
+							<select class="form-select input-modern" [(ngModel)]="newIncident.status" name="status" required>
+								<option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+							</select>
+						</div>
+						<div class="col-12">
+							<label class="form-label">Recommendation</label>
+							<textarea class="form-control input-modern" rows="3" [(ngModel)]="newIncident.recommendation" name="recommendation"></textarea>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+				<button class="btn btn-primary" (click)="addIncident()" [disabled]="!addIncidentForm.form.valid">Ajouter</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="editIncidentModal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content modal-modern">
+			<div class="modal-header modal-header-modern">
+				<h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Modifier un incident</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<form #editIncidentForm="ngForm">
+					<div class="row g-2">
+						<div class="col-md-6">
+							<label class="form-label">Resource</label>
+							<select class="form-select input-modern" [(ngModel)]="editIncident.resource" name="editResource" required>
+								<option *ngFor="let resource of resourceOptions" [value]="resource">{{ resource }}</option>
+							</select>
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Type</label>
+							<select class="form-select input-modern" [(ngModel)]="editIncident.type" name="editType" required>
+								<option *ngFor="let type of typeOptions" [value]="type">{{ type }}</option>
+							</select>
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Value</label>
+							<input class="form-control input-modern" type="number" step="0.01" [(ngModel)]="editIncident.value" name="editValue">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label">Statut</label>
+							<select class="form-select input-modern" [(ngModel)]="editIncident.status" name="editStatus" required>
+								<option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+							</select>
+						</div>
+						<div class="col-12">
+							<label class="form-label">Recommendation</label>
+							<textarea class="form-control input-modern" rows="3" [(ngModel)]="editIncident.recommendation" name="editRecommendation"></textarea>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+				<button class="btn btn-primary" (click)="updateIncident()" [disabled]="!editIncidentForm.form.valid">Enregistrer</button>
+			</div>
+		</div>
+	</div>
+</div>

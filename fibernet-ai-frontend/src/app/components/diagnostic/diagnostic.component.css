@@ -1,0 +1,121 @@
+.diagnostic-page .panel-header {
+	background: var(--surface-muted);
+	border-bottom: 1px solid var(--border-color);
+}
+
+.diag-headline {
+	background: linear-gradient(120deg, var(--header-blue), var(--header-blue-2));
+	color: #f4f8ff;
+}
+
+.input-modern {
+	border-radius: 10px;
+	border: 1px solid var(--border-color);
+	background: var(--surface);
+	color: var(--text-main);
+}
+
+.input-modern:focus {
+	border-color: rgba(44, 116, 255, 0.55);
+	box-shadow: 0 0 0 0.2rem rgba(44, 116, 255, 0.15);
+}
+
+.anomaly-item {
+	border: 1px solid rgba(239, 68, 68, 0.35);
+	background: linear-gradient(120deg, rgba(239, 68, 68, 0.12), rgba(220, 38, 38, 0.06));
+	border-radius: 12px;
+	padding: 0.75rem 0.85rem;
+}
+
+.recommendation-list .list-group-item {
+	border: 1px solid var(--border-color);
+	border-radius: 10px;
+	margin-bottom: 0.45rem;
+	background: var(--surface);
+}
+
+.progress-modern {
+	height: 12px;
+	border-radius: 999px;
+	background: rgba(29, 78, 216, 0.12);
+}
+
+.progress-case {
+	background: rgba(44, 116, 255, 0.14);
+}
+
+.progress-case .progress-bar {
+	background: linear-gradient(120deg, #2c74ff, #18a7d1);
+	font-weight: 600;
+}
+
+.ml-card .card-body {
+	background: var(--surface-muted);
+}
+
+.ml-score {
+	font-size: 2.4rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.ml-badge {
+	font-size: 0.9rem;
+	padding: 0.55rem 0.8rem;
+}
+
+.ml-progress {
+	height: 10px;
+	margin: 1.25rem 0 0.85rem;
+	background: rgba(148, 163, 184, 0.2);
+}
+
+.ml-progress .progress-bar {
+	transition: width 0.45s ease;
+}
+
+.ml-explanation {
+	color: var(--text-muted);
+	font-size: 0.92rem;
+}
+
+.ml-normal {
+	color: #22c55e;
+}
+
+.ml-suspect {
+	color: #facc15;
+}
+
+.ml-anomaly {
+	color: #f87171;
+}
+
+.ml-badge.ml-normal,
+.ml-badge.ml-suspect,
+.ml-badge.ml-anomaly {
+	color: #101827;
+}
+
+.ml-badge.ml-normal,
+.ml-progress .ml-normal {
+	background-color: #22c55e;
+}
+
+.ml-badge.ml-suspect,
+.ml-progress .ml-suspect {
+	background-color: #facc15;
+}
+
+.ml-badge.ml-anomaly,
+.ml-progress .ml-anomaly {
+	background-color: #f87171;
+}
+
+.ml-error {
+	border: 1px solid rgba(248, 113, 113, 0.35);
+	border-radius: 10px;
+	padding: 0.8rem;
+	color: #fca5a5;
+	background: rgba(127, 29, 29, 0.2);
+}

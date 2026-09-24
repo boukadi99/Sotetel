@@ -1,0 +1,274 @@
+<div class="container-fluid p-3 p-lg-4 onts-page">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div class="section-title mb-0">
+      <span class="icon"><i class="bi bi-router"></i></span>
+      <div>
+        <h2 class="mb-0">Gestion des ONTs</h2>
+        <p class="section-subtext">Suivi des terminaux clients et de leur sante optique</p>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary btn-animated" data-bs-toggle="modal" data-bs-target="#addOntModal">
+        <i class="bi bi-plus-circle me-1"></i> Ajouter ONT
+      </button>
+      <button class="btn btn-outline-secondary btn-animated" (click)="showFilters = !showFilters">
+        <i class="bi bi-funnel me-1"></i> {{ showFilters ? 'Masquer filtres' : 'Afficher filtres' }}
+      </button>
+      <button class="btn btn-primary btn-animated" *ngIf="hasActiveFilters()" (click)="resetFilters()">
+        <i class="bi bi-arrow-counterclockwise me-1"></i> Reinitialiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Panneau de filtres -->
+  <div class="accordion ont-filters mb-4">
+    <div class="accordion-item app-card">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" [class.collapsed]="!showFilters" (click)="showFilters = !showFilters">
+          <i class="bi bi-sliders me-2"></i> Filtres avances et recherche textuelle
+        </button>
+      </h2>
+      <div class="accordion-collapse collapse" [class.show]="showFilters">
+        <div class="accordion-body">
+          <div class="row">
+            <div class="col-md-3">
+              <label class="form-label">Statut</label>
+              <div>
+                <div *ngFor="let status of statusOptions" class="form-check">
+                  <input class="form-check-input" type="checkbox" 
+                         [checked]="isStatusSelected(status)"
+                         (change)="toggleStatus(status)">
+                  <label class="form-check-label" [ngClass]="{
+                    'text-success': status === 'online',
+                    'text-danger': status === 'offline',
+                    'text-warning': status === 'degraded'
+                  }">
+                    {{ status }}
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Puissance RX (dBm)</label>
+              <div class="input-group mb-2">
+                <span class="input-group-text">Min</span>
+                <input type="number" class="form-control input-modern" step="0.1" [(ngModel)]="filters.minRxPower">
+              </div>
+              <div class="input-group">
+                <span class="input-group-text">Max</span>
+                <input type="number" class="form-control input-modern" step="0.1" [(ngModel)]="filters.maxRxPower">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Puissance TX (dBm)</label>
+              <div class="input-group mb-2">
+                <span class="input-group-text">Min</span>
+                <input type="number" class="form-control input-modern" step="0.1" [(ngModel)]="filters.minTxPower">
+              </div>
+              <div class="input-group">
+                <span class="input-group-text">Max</span>
+                <input type="number" class="form-control input-modern" step="0.1" [(ngModel)]="filters.maxTxPower">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Distance (km)</label>
+              <div class="input-group mb-2">
+                <span class="input-group-text">Min</span>
+                <input type="number" class="form-control input-modern" step="0.1" [(ngModel)]="filters.minDistance">
+              </div>
+              <div class="input-group">
+                <span class="input-group-text">Max</span>
+                <input type="number" class="form-control input-modern" step="0.1" [(ngModel)]="filters.maxDistance">
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <label class="form-label">Recherche par serial</label>
+              <input type="text" class="form-control input-modern" placeholder="Saisir une partie du numero de serie..." 
+                     [(ngModel)]="filters.searchSerial">
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-12 d-flex gap-2 flex-wrap">
+              <button class="btn btn-primary btn-animated" (click)="applyFilters()"><i class="bi bi-check2-circle me-1"></i>Appliquer les filtres</button>
+              <button class="btn btn-secondary btn-animated" (click)="resetFilters()">Reinitialiser</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="criticalMode" class="alert alert-warning">
+    Affichage des ONTs critiques uniquement.
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <div class="card app-card table-card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-modern">
+            <thead>
+              <tr>
+                <th (click)="changeSort('id')" style="cursor: pointer;">
+                  ID
+                  <span *ngIf="sortBy === 'id'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th (click)="changeSort('serial')" style="cursor: pointer;">
+                  Serial
+                  <span *ngIf="sortBy === 'serial'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th (click)="changeSort('rxPower')" style="cursor: pointer;">
+                  RX Power (dBm)
+                  <span *ngIf="sortBy === 'rxPower'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th (click)="changeSort('txPower')" style="cursor: pointer;">
+                  TX Power (dBm)
+                  <span *ngIf="sortBy === 'txPower'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th (click)="changeSort('distanceKm')" style="cursor: pointer;">
+                  Distance (km)
+                  <span *ngIf="sortBy === 'distanceKm'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th (click)="changeSort('status')" style="cursor: pointer;">
+                  Statut
+                  <span *ngIf="sortBy === 'status'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th>Santé</th>
+                <th>Actions</th>
+               </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ont of onts">
+                <td>{{ ont.id }}</td>
+                <td><code>{{ ont.serial }}</code></td>
+                <td [ngClass]="{
+                  'text-danger': ont.rxPower < -27,
+                  'text-warning': ont.rxPower >= -27 && ont.rxPower < -25
+                }">
+                  {{ ont.rxPower }}
+                </td>
+                <td [ngClass]="{
+                  'text-danger': ont.txPower < 0.3,
+                  'text-warning': ont.txPower >= 0.3 && ont.txPower < 0.8
+                }">
+                  {{ ont.txPower }}
+                </td>
+                <td>{{ ont.distanceKm }} km</td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(ont.status)">
+                    {{ ont.status }}
+                  </span>
+                </td>
+                <td>
+                  <span class="health-dot" [ngClass]="{
+                    'dot-green': ont.healthStatus === 'GOOD',
+                    'dot-red': ont.healthStatus === 'CRITICAL',
+                    'dot-yellow': ont.healthStatus !== 'GOOD' && ont.healthStatus !== 'CRITICAL'
+                  }"></span>
+                  <span class="badge" [ngClass]="getHealthBadgeClass(ont.healthStatus)">
+                    {{ ont.healthStatus }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-danger btn-animated" (click)="deleteOnt(ont.id)">
+                    <i class="bi bi-trash3 me-1"></i> Supprimer
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="onts.length === 0">
+                <td colspan="8" class="text-center text-muted">
+                  Aucun ONT trouvé
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+          <div class="pagination-text">
+            Affichage de {{ currentPage * pageSize + 1 }} à 
+            {{ (currentPage + 1) * pageSize > totalElements ? totalElements : (currentPage + 1) * pageSize }} 
+            sur {{ totalElements }} ONTs
+          </div>
+          <nav>
+            <ul class="pagination pagination-modern mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="changePage(currentPage - 1)">Précédent</button>
+              </li>
+              <li class="page-item disabled">
+                <span class="page-link">Page {{ currentPage + 1 }} / {{ totalPages }}</span>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
+                <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addOntModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content modal-modern">
+      <div class="modal-header modal-header-modern">
+        <h5 class="modal-title"><i class="bi bi-plus-square me-2"></i>Ajouter un ONT</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form #addOntForm="ngForm">
+          <div class="mb-3">
+            <label class="form-label">Serial</label>
+            <input class="form-control input-modern" [(ngModel)]="newOnt.serial" name="serial" required>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label">RX Power</label>
+              <input type="number" step="0.1" class="form-control input-modern" [(ngModel)]="newOnt.rxPower" name="rxPower" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label">TX Power</label>
+              <input type="number" step="0.1" class="form-control input-modern" [(ngModel)]="newOnt.txPower" name="txPower" required>
+            </div>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-6">
+              <label class="form-label">Distance (km)</label>
+              <input type="number" step="0.1" class="form-control input-modern" [(ngModel)]="newOnt.distanceKm" name="distanceKm" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Statut</label>
+              <select class="form-select input-modern" [(ngModel)]="newOnt.status" name="status" required>
+                <option value="online">online</option>
+                <option value="offline">offline</option>
+                <option value="degraded">degraded</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="addOnt()" [disabled]="!addOntForm.form.valid">Ajouter</button>
+      </div>
+    </div>
+  </div>
+</div>

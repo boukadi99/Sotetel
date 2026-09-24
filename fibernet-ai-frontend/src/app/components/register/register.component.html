@@ -1,0 +1,87 @@
+<div class="auth-page">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-5">
+        <div class="card app-card auth-card">
+          <div class="card-body p-4">
+            <div class="text-center mb-4">
+              <div class="auth-icon mb-2">
+                <i class="bi bi-person-plus"></i>
+              </div>
+              <h3 class="mb-1">Creation de compte</h3>
+              <p class="text-muted mb-0">Rejoignez FiberNet-AI Pro</p>
+            </div>
+
+            <form #registerForm="ngForm" (ngSubmit)="onSubmit(registerForm)">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Nom d'utilisateur</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="username"
+                  [(ngModel)]="username"
+                  #usernameCtrl="ngModel"
+                  required>
+                <div *ngIf="usernameCtrl.invalid && (usernameCtrl.dirty || usernameCtrl.touched)" class="text-danger small mt-1">
+                  Nom d'utilisateur requis.
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  name="email"
+                  [(ngModel)]="email"
+                  #emailCtrl="ngModel"
+                  required
+                  email>
+                <div *ngIf="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)" class="text-danger small mt-1">
+                  Email valide requis.
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Mot de passe</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  name="password"
+                  [(ngModel)]="password"
+                  #passwordCtrl="ngModel"
+                  required
+                  minlength="4">
+                <div *ngIf="passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)" class="text-danger small mt-1">
+                  Mot de passe requis.
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Role</label>
+                <select class="form-select" name="role" [(ngModel)]="role" required>
+                  <option value="TECH">TECH</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </div>
+
+              <div *ngIf="error" class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+              </div>
+
+              <button class="btn btn-primary w-100 btn-animated" type="submit" [disabled]="registerForm.invalid || loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Creer un compte
+              </button>
+            </form>
+
+            <div class="text-center mt-3">
+              <span class="text-muted">Vous avez deja un compte ?</span>
+              <a routerLink="/login" class="ms-1">Se connecter</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

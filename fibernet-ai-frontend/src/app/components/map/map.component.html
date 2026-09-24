@@ -1,0 +1,50 @@
+<div class="map-page">
+  <div class="section-title mb-4">
+    <span class="icon"><i class="bi bi-geo-alt-fill"></i></span>
+    <div>
+      <h2 class="title mb-0">Cartographie PM/PBO - Tunisie</h2>
+      <p class="section-subtext">Visualisation geographique du reseau optique</p>
+    </div>
+  </div>
+
+  <div class="layout-grid">
+    <aside class="legend-panel app-card">
+      <h3><i class="bi bi-list-ul me-2"></i>Legende</h3>
+      <ul>
+        <li>
+          <span class="dot dot-pio"></span>
+          <span>PIO - Point d'Interconnexion Optique</span>
+        </li>
+        <li>
+          <span class="dot dot-pbo"></span>
+          <span>PBO - Point de Branchement Optique</span>
+        </li>
+        <li>
+          <span class="dot dot-pbi"></span>
+          <span>PBI - Point de Branchement Individuel</span>
+        </li>
+        <li>
+          <span class="dot dot-pm"></span>
+          <span>PM - Point de Mutualisation</span>
+        </li>
+      </ul>
+    </aside>
+
+    <section class="map-panel">
+      <div class="map-wrapper">
+        <div #mapContainer id="map" class="map-container"></div>
+
+        <div *ngIf="loading" class="map-overlay">
+          <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+          <p>Chargement des points PM/PBO...</p>
+        </div>
+
+        <div *ngIf="error" class="error-box">
+          {{ error }}
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,121 @@
+<div class="container-fluid p-3 p-lg-4">
+	<div class="section-title mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+		<div class="d-flex align-items-center">
+			<span class="icon me-2"><i class="bi bi-journal-text"></i></span>
+			<div>
+				<h2 class="title mb-0">Historique Chatbot</h2>
+				<p class="section-subtext mb-0">Journal des conversations — Assistant IA</p>
+			</div>
+		</div>
+		<button class="btn btn-outline-primary" (click)="loadLogs()" [disabled]="loading">
+			<span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+			<i *ngIf="!loading" class="bi bi-arrow-clockwise me-1"></i>
+			Rafraichir
+		</button>
+	</div>
+
+	<div *ngIf="error" class="alert alert-danger">
+		<i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+	</div>
+
+	<div class="card app-card mb-4">
+		<div class="card-body">
+			<div class="row g-3 align-items-end">
+				<div class="col-12 col-md-4">
+					<label class="form-label fw-semibold">Filtre Source</label>
+					<select class="form-select" [(ngModel)]="sourceFilter" (change)="applyFilters()">
+						<option value="">Toutes les sources</option>
+						<option *ngFor="let source of sourceOptions" [value]="source">{{ source }}</option>
+					</select>
+				</div>
+
+				<div class="col-12 col-md-3">
+					<label class="form-label fw-semibold">Filtre Date</label>
+					<input type="date" class="form-control" [(ngModel)]="dateFilter" (change)="applyFilters()">
+				</div>
+
+				<div class="col-12 col-md-5">
+					<label class="form-label fw-semibold">Recherche (question)</label>
+					<input
+						type="text"
+						class="form-control"
+						placeholder="Rechercher dans la question..."
+						[(ngModel)]="searchTerm"
+						(input)="applyFilters()">
+				</div>
+			</div>
+
+			<div class="mt-3 d-flex justify-content-end">
+				<button class="btn btn-sm btn-outline-secondary" (click)="clearFilters()">
+					Reinitialiser filtres
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="loading" class="card app-card p-4 text-center">
+		<div class="spinner-border text-primary mx-auto mb-2" role="status" aria-hidden="true"></div>
+		<p class="mb-0">Chargement des logs chatbot...</p>
+	</div>
+
+	<div *ngIf="!loading" class="card app-card">
+		<div class="table-responsive">
+			<table class="table table-hover align-middle mb-0">
+				<thead class="table-light">
+					<tr>
+						<th>Date/Heure</th>
+						<th>Utilisateur</th>
+						<th>Question</th>
+						<th>Reponse</th>
+						<th>Source</th>
+						<th>Session ID</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngIf="paginatedLogs.length === 0">
+						<td colspan="6" class="text-center py-4 text-muted">Aucun log a afficher.</td>
+					</tr>
+					<tr *ngFor="let log of paginatedLogs; trackBy: trackById">
+						<td class="text-nowrap">{{ log.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+						<td class="text-nowrap" [attr.title]="log.user">{{ truncate(log.user, 24) }}</td>
+						<td>
+							<span [attr.title]="log.question">{{ truncate(log.question, 100) }}</span>
+						</td>
+						<td>
+							<span [attr.title]="log.reponse">{{ truncate(log.reponse, 100) }}</span>
+						</td>
+						<td>
+							<span
+								class="badge"
+								[class.bg-success]="log.source === 'rag'"
+								[class.bg-secondary]="log.source !== 'rag'">
+								{{ log.source === 'rag' ? 'Assistant IA' : (log.source || log.intent || 'N/A') }}
+							</span>
+						</td>
+						<td class="session-id" [attr.title]="log.sessionId">{{ truncate(log.sessionId, 36) }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+			<small class="text-muted">
+				{{ filteredLogs.length }} element(s) - page {{ currentPage }} / {{ totalPages }}
+			</small>
+
+			<nav aria-label="Pagination logs chatbot">
+				<ul class="pagination pagination-sm mb-0">
+					<li class="page-item" [class.disabled]="currentPage === 1">
+						<button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">Precedent</button>
+					</li>
+					<li class="page-item" *ngFor="let page of pageNumbers" [class.active]="page === currentPage">
+						<button class="page-link" (click)="setPage(page)">{{ page }}</button>
+					</li>
+					<li class="page-item" [class.disabled]="currentPage === totalPages">
+						<button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>

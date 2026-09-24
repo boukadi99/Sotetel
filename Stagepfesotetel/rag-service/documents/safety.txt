@@ -1,0 +1,17 @@
+﻿Consignes de sécurité pour la fibre optique
+
+Dangers principaux:
+
+1. Radiation laser: ne JAMAIS regarder directement dans une fibre ou un connecteur actif. Les lasers GPON émettent à 1490 nm et 1550 nm, invisibles à l'œil humain mais dangereux pour la rétine.
+
+2. Éclats de verre: la fibre cassée produit des éclats très fins qui peuvent pénétrer la peau. Toujours manipuler avec des gants et jeter les déchets dans un conteneur dédié.
+
+3. Produits chimiques: les solvants de nettoyage doivent être utilisés dans des zones ventilées.
+
+Équipements de protection individuelle (EPI):
+
+- Lunettes de sécurité
+- Gants anti-coupure
+- Bracelet antistatique ESD
+- Lampe torche ou lampe frontale
+- Kit de premiers secours disponible

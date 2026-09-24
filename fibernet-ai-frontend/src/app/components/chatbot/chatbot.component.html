@@ -1,0 +1,67 @@
+<div class="chatbot-page container-fluid p-3 p-lg-4">
+	<div class="section-title mb-4">
+		<span class="icon"><i class="bi bi-chat-dots-fill"></i></span>
+		<div>
+			<h2 class="mb-0">Assistant IA</h2>
+			<p class="section-subtext">Support technique réseau et procédures terrain</p>
+		</div>
+	</div>
+
+	<div class="chatbot-card app-card">
+		<div class="suggestions-wrap">
+			<span class="suggestions-label">Suggestions rapides</span>
+			<div class="suggestions-list">
+				<button
+					type="button"
+					class="suggestion-btn"
+					*ngFor="let suggestion of quickSuggestions; trackBy: trackByIndex"
+					(click)="useSuggestion(suggestion)">
+					{{ suggestion }}
+				</button>
+			</div>
+		</div>
+
+		<div class="messages-area" id="messagesArea">
+			<div
+				class="message-row"
+				*ngFor="let msg of messages; trackBy: trackByIndex"
+				[class.user-row]="msg.role === 'user'"
+				[class.bot-row]="msg.role === 'bot'">
+				<div class="message-bubble" [class.user-bubble]="msg.role === 'user'" [class.bot-bubble]="msg.role === 'bot'">
+					<div class="message-content">{{ msg.content }}</div>
+					<small class="message-time">{{ msg.timestamp | date:'HH:mm' }}</small>
+				</div>
+			</div>
+
+			<div class="message-row bot-row" *ngIf="loading">
+				<div class="message-bubble bot-bubble typing-bubble">
+					<span class="typing-dots" aria-hidden="true">
+						<span></span><span></span><span></span>
+					</span>
+					<span>L'assistant IA est en train de répondre...</span>
+				</div>
+			</div>
+		</div>
+
+		<div *ngIf="error" class="alert alert-danger mb-3">
+			{{ error }}
+		</div>
+
+		<div class="input-row">
+			<textarea
+				class="form-control input-modern"
+				rows="2"
+				placeholder="Tapez votre message..."
+				[(ngModel)]="userInput"
+				(keydown.enter)="onEnter($event)"></textarea>
+			<button
+				type="button"
+				class="btn btn-primary send-btn"
+				(click)="sendMessage()"
+				[disabled]="loading || !userInput.trim()">
+				<i class="bi bi-send-fill me-1"></i>
+				Envoyer
+			</button>
+		</div>
+	</div>
+</div>

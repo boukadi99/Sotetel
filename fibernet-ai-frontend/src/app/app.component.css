@@ -1,0 +1,132 @@
+.app-shell {
+	min-height: 100vh;
+}
+
+.app-navbar {
+	position: fixed;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 254px;
+	z-index: 1030;
+	background: linear-gradient(120deg, #0d2340, #183a63);
+	box-shadow: 8px 0 24px rgba(13, 35, 64, 0.2);
+	overflow-y: auto;
+}
+
+.app-navbar-inner {
+	min-height: 100%;
+	display: flex;
+	flex-direction: column;
+	padding: 1.25rem 0.85rem 1rem;
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	color: #f4f8ff;
+	padding: 0.2rem 0.45rem 1.5rem;
+}
+
+.brand:hover {
+	color: #ffffff;
+}
+
+.brand-logo {
+	width: 38px;
+	height: 38px;
+	border-radius: 12px;
+	display: grid;
+	place-items: center;
+	background: linear-gradient(140deg, #2c74ff, #18a7d1);
+	color: #ffffff;
+	box-shadow: 0 8px 16px rgba(44, 116, 255, 0.35);
+}
+
+.brand-text {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.1;
+}
+
+.brand-text strong {
+	font-size: 1.02rem;
+	letter-spacing: 0.2px;
+}
+
+.brand-text small {
+	font-size: 0.76rem;
+	color: rgba(240, 246, 255, 0.74);
+}
+
+.navbar-collapse {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
+.navbar-nav {
+	gap: 0.3rem;
+}
+
+.nav-item {
+	width: 100%;
+}
+
+.nav-link {
+	color: rgba(236, 243, 255, 0.84);
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	padding: 0.62rem 0.75rem;
+	transition: all 0.22s ease;
+}
+
+.nav-link:hover {
+	color: #ffffff;
+	background: rgba(255, 255, 255, 0.14);
+}
+
+.nav-link.active {
+	color: #ffffff;
+	background: linear-gradient(120deg, rgba(44, 116, 255, 0.48), rgba(24, 167, 209, 0.44));
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.logout-button {
+	width: 100%;
+	margin-top: 1.1rem;
+	padding: 0.58rem 0.75rem;
+}
+
+.app-content {
+	padding: 0.75rem 0.75rem 1.2rem;
+}
+
+@media (min-width: 768px) {
+	.app-content.with-sidebar {
+		margin-left: 254px;
+	}
+}
+
+@media (max-width: 767.98px) {
+	.app-navbar {
+		position: relative;
+		width: 100%;
+		bottom: auto;
+	}
+
+	.app-navbar-inner {
+		min-height: auto;
+		padding: 0.85rem 0.75rem;
+	}
+
+	.brand {
+		padding-bottom: 1rem;
+	}
+
+	.app-content {
+		padding-top: 1rem;
+	}
+}

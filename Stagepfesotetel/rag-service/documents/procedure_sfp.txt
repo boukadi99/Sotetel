@@ -1,0 +1,14 @@
+﻿Procédure de remplacement d'un SFP sur un OLT Huawei
+
+1. Identifier le port concerné sur l'OLT via l'interface de gestion
+2. Vérifier que le trafic est redirigé vers un autre port si possible
+3. Éteindre administrativement le port concerné
+4. Retirer l'ancien module SFP avec précaution
+5. Insérer le nouveau module SFP dans le logement
+6. Rallumer le port administrativement
+7. Vérifier les niveaux de puissance RX et TX via la console
+8. Confirmer la connectivité avec un test de ping
+
+ATTENTION: Toujours porter un bracelet antistatique ESD avant toute manipulation des modules SFP. Ne jamais regarder directement dans une fibre optique ou un connecteur SFP actif.
+
+Types de SFP supportés sur OLT Huawei MA5800: GPON (classe B+), XGS-PON, SFP+ 10G.

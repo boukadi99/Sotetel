@@ -1,0 +1,198 @@
+<div class="container-fluid p-3 p-lg-4 olts-page">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div class="section-title mb-0">
+      <span class="icon"><i class="bi bi-hdd-network"></i></span>
+      <div>
+        <h2 class="mb-0">Gestion des OLTs</h2>
+        <p class="section-subtext">Inventaire des equipements d'acces optique</p>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-animated" data-bs-toggle="modal" data-bs-target="#addOltModal">
+      <i class="bi bi-plus-circle me-1"></i> Ajouter un OLT
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && !error">
+    <div class="card app-card table-card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-modern">
+            <thead>
+              <tr>
+                <th (click)="changeSort('id')" style="cursor: pointer;">
+                  ID
+                  <span *ngIf="sortBy === 'id'">
+                    {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                  </span>
+                </th>
+                <th (click)="changeSort('site')" style="cursor: pointer;">
+                  Site
+                  <span *ngIf="sortBy === 'site'">
+                    {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                  </span>
+                </th>
+                <th (click)="changeSort('vendor')" style="cursor: pointer;">
+                  Vendor
+                  <span *ngIf="sortBy === 'vendor'">
+                    {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                  </span>
+                </th>
+                <th (click)="changeSort('totalPorts')" style="cursor: pointer;">
+                  Ports
+                  <span *ngIf="sortBy === 'totalPorts'">
+                    {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                  </span>
+                </th>
+                <th (click)="changeSort('ponCount')" style="cursor: pointer;">
+                  PONs
+                  <span *ngIf="sortBy === 'ponCount'">
+                    {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                  </span>
+                </th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let olt of olts">
+                <td>{{ olt.id }}</td>
+                <td>{{ olt.site }}</td>
+                <td>
+                  <span class="badge vendor-badge" [ngClass]="{
+                    'bg-info': olt.vendor === 'Nokia',
+                    'bg-success': olt.vendor === 'Huawei',
+                    'bg-warning': olt.vendor === 'ZTE'
+                  }">
+                    {{ olt.vendor }}
+                  </span>
+                </td>
+                <td>{{ olt.totalPorts }}</td>
+                <td>{{ olt.ponCount }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary btn-animated me-2" (click)="openEditModal(olt)">
+                    <i class="bi bi-pencil-square me-1"></i> Modifier
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger btn-animated" (click)="deleteOlt(olt.id)">
+                    <i class="bi bi-trash3 me-1"></i> Supprimer
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="olts.length === 0">
+                <td colspan="6" class="text-center text-muted">
+                  Aucun OLT trouvé
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+          <div class="pagination-text">
+            Affichage de {{ currentPage * pageSize + 1 }} à 
+            {{ (currentPage + 1) * pageSize > totalElements ? totalElements : (currentPage + 1) * pageSize }} 
+            sur {{ totalElements }} OLTs
+          </div>
+          <nav>
+            <ul class="pagination pagination-modern mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 0">
+                <button class="page-link" (click)="changePage(currentPage - 1)">Précédent</button>
+              </li>
+              <li class="page-item disabled">
+                <span class="page-link">Page {{ currentPage + 1 }} / {{ totalPages }}</span>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
+                <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editOltModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content modal-modern">
+      <div class="modal-header modal-header-modern">
+        <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Modifier un OLT</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form #editOltForm="ngForm">
+          <div class="mb-3">
+            <label class="form-label">Site</label>
+            <input type="text" class="form-control input-modern" name="editSite" [(ngModel)]="editOlt.site" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Vendor</label>
+            <select class="form-select input-modern" name="editVendor" [(ngModel)]="editOlt.vendor" required>
+              <option value="Nokia">Nokia</option>
+              <option value="Huawei">Huawei</option>
+              <option value="ZTE">ZTE</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre de ports</label>
+            <input type="number" class="form-control input-modern" name="editTotalPorts" [(ngModel)]="editOlt.totalPorts" required min="1">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="updateOlt()" [disabled]="!editOltForm.form.valid">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ajouter OLT -->
+<div class="modal fade" id="addOltModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content modal-modern">
+      <div class="modal-header modal-header-modern">
+        <h5 class="modal-title"><i class="bi bi-plus-square me-2"></i>Ajouter un OLT</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form #oltForm="ngForm">
+          <div class="mb-3">
+            <label class="form-label">Site</label>
+            <input type="text" class="form-control input-modern" name="site" [(ngModel)]="newOlt.site" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Vendor</label>
+            <select class="form-select input-modern" name="vendor" [(ngModel)]="newOlt.vendor" required>
+              <option value="Nokia">Nokia</option>
+              <option value="Huawei">Huawei</option>
+              <option value="ZTE">ZTE</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre de ports</label>
+            <input type="number" class="form-control input-modern" name="totalPorts" [(ngModel)]="newOlt.totalPorts" required min="1">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="addOlt()" [disabled]="!oltForm.form.valid">
+          Ajouter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

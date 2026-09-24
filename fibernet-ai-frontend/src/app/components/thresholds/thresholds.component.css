@@ -1,0 +1,27 @@
+.card-header {
+	background: #f8fafc;
+}
+
+.table td,
+.table th {
+	vertical-align: middle;
+}
+
+.table tbody tr:hover {
+	background-color: rgba(13, 110, 253, 0.04);
+}
+
+.badge {
+	font-weight: 600;
+	letter-spacing: 0.02em;
+}
+
+.btn i {
+	font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+	.table {
+		font-size: 0.92rem;
+	}
+}

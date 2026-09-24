@@ -1,0 +1,30 @@
+.card-header,
+.card-footer {
+	background: #f8fafc;
+}
+
+.table td,
+.table th {
+	vertical-align: middle;
+}
+
+.table tbody tr:hover {
+	background-color: rgba(13, 110, 253, 0.04);
+}
+
+.badge {
+	font-weight: 600;
+	letter-spacing: 0.01em;
+}
+
+.session-id {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+	font-size: 0.82rem;
+	color: #334155;
+}
+
+@media (max-width: 768px) {
+	.table {
+		font-size: 0.9rem;
+	}
+}
